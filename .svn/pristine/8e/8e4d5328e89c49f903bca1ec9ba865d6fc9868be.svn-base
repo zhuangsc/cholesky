@@ -1,0 +1,59 @@
+-------------------------------------------------------------------
+Cholesky Factorization
+Barcelona Application Repository (BAR) - Readme
+-------------------------------------------------------------------
+Formatted Readme for BAR TRAC support.
+1)Required tags: Name, Contact Person, Repository, Access Level, License Agreement, Platform
+2)Tags follow the syntax:
+"[tag]: single string"
+"[tag] multiline text"
+Multiline text tags include any formatted text until next tag or EOF and
+can include any TRAC understandable formatting directives.
+---------------------------------------------------------------------
+
+[Name]: Cholesky Factorization
+[Contact Person]: Pieter Bellens, pieter.bellens@bsc.es ; Sicong Zhuang, sicong.zhuang@bsc.es
+[Access Level]: public
+[License Agreement]: GPL
+[Platform]: OMPSs
+
+[Body]
+== Description ==
+The Cholesky factorization computes A = LL', with A an nxn SPD matrix and L lower-triangular. The implementation
+in OmpSs divides A into blocks of bxb elements, which can be subdivided further into sub-blocks of txt elements. 
+Both single and double precision are supported. 
+
+The distribution includes different variants of the Cholesky decomposition:[[BR]]
+* '''chol_ll''': left-looking variant, as implemented by the routine DPOTRF() in LAPACK 
+* '''chol_rl''': right-looking version, as implemented by PDPOTRF() of ScalaPACK (1). 
+* '''chol_nll''': nested left-looking variant
+* '''chol_nrl''': nested right-looking version
+* '''chols_ll''': sparse, left-looking version. 
+Each executable is prefixed by '''''s''''' or '''''d''''', corresponding to single or double precision. 
+{{{#!comment
+lchol is a right-looking implementation, similar to rlchol, that uses panels instead of blocks. It resembles
+the naive right-looking implementation in (2).
+}}}
+
+== Build ==
+Uses GNU's Autotools. We do not generate fully functional tarballs yet, so it is probably a good idea to start off with an ''autoreconf -ifv''.
+
+== Usage ==
+> ./chol n b [t] [rep] [check] [[BR]][[BR]]
+
+  where [[BR]][[BR]]
+
+  n   	= order of A [[BR]]
+  b     = number of rows and columns in a block, or the number of columns in a panel [[BR]]
+  t     = number of columns of the subpanels in a block or panel ('''chol_ll''', '''chol_rl'''), or order of subblocks in a block ('''chol_nll''', '''chol_rll''') [[BR]]
+  rep   = number of repititions [[BR]]
+  check = check output of the computation [[BR]]
+
+
+> ./chols n b [t] [rep] [check] [[BR]][[BR]]
+
+
+
+== References ==
+(1) Jaeyoung Choi, Jack Dongarra, Susan Ostrouchov et al, "The Design and Implementation of the Scalapack LU, QR and Cholesky Factorization Routines", 1994 [[BR]]
+(2) Grey Ballard, James Demmel, Olga Holtz and Oded Schwartz, "Communication-Optimal Parallel and Sequential Cholesky Decomposition", 2009

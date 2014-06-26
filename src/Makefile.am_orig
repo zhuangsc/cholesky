@@ -1,0 +1,97 @@
+SUBDIRS = dense_kernels sparse_kernels matutil
+
+
+chol_sources = chol.c chol_utils.c chol_check.c fptype.c
+chol_headers = chol_setup.h chol_utils.h chol_check.h fptype.h
+chol_ll_sources = chol_llmain.c chol_setup.c chol_config.c 
+chol_ll_headers = chol_llmain.h chol_config.h 
+chol_rl_sources = chol_rlmain.c chol_setup.c chol_config.c 
+chol_rl_headers = chol_rlmain.h chol_config.h 
+prlchol_sources = chol_prlmain.c chol_psetup.c chol_config.c 
+prlchol_headers = chol_prlmain.h chol_config.h 
+chols_ll_sources = chols_llmain.c chols_config.c chols_setup.c 
+chols_ll_headers = chols_llmain.h chol_config.h chols_setup.h 
+
+
+bin_PROGRAMS = dchol_ll schol_ll dchol_rl schol_rl
+if PARAVER
+bin_PROGRAMS += rlcholt llcholt prlcholt llcholst
+endif
+
+include_HEADERS = ompss_cholesky.h
+
+lib_LTLIBRARIES = libompsschol.la
+libompsschol_la_SOURCES = ompss_cholesky.c ompss_cholesky.h chol_llmain.c chol_rlmain.c fptype.c 
+libompsschol_la_LDFLAGS = $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS)
+libompsschol_la_CFLAGS = $(OMPSS_CFLAGS) $(CFLAG_VISIBILITY) -DDOUBLE_PRECISION -DLIBOMPSS_BUILDING -I$(srcdir)/dense_kernels -I$(srcdir)/matutil -I$(srcdir)/util
+libompsschol_la_LIBADD = $(builddir)/dense_kernels/libddkernels.la $(builddir)/matutil/libmatutil.la
+
+
+# Dense, left-looking
+dchol_ll_SOURCES = $(chol_sources) $(chol_headers) $(chol_ll_sources) $(chol_ll_headers)
+dchol_ll_LDFLAGS = $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS)
+dchol_ll_CFLAGS = $(OMPSS_CFLAGS) -DUSE_LL -DDOUBLE_PRECISION -I$(srcdir)/dense_kernels -I$(srcdir)/matutil -I$(srcdir)/util
+dchol_ll_LDADD = $(builddir)/dense_kernels/libddkernels.la $(builddir)/matutil/libmatutil.la $(builddir)/matutil/libdgenmat.la
+
+dcholt_ll_SOURCES = $(chol_sources) $(chol_headers) $(chol_ll_sources) $(chol_ll_headers)
+dcholt_ll_LDFLAGS = $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS)
+dcholt_ll_CFLAGS = $(OMPSS_CFLAGS) -DUSE_LL -DDOUBLE_PRECISION --instrument -I$(srcdir)/dense_kernels -I$(srcdir)/matutil -I$(srcdir)/util
+dcholt_ll_LDADD = $(builddir)/dense_kernels/libddkernels.la $(builddir)/matutil/libmatutil.la $(builddir)/matutil/libdgenmat.la
+
+schol_ll_SOURCES = $(chol_sources) $(chol_headers) $(chol_ll_sources) $(chol_ll_headers)
+schol_ll_LDFLAGS = $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS)
+schol_ll_CFLAGS = $(OMPSS_CFLAGS) -DUSE_LL -DSINGLE_PRECISION -I$(srcdir)/dense_kernels -I$(srcdir)/matutil -I$(srcdir)/util
+schol_ll_LDADD = $(builddir)/dense_kernels/libsdkernels.la $(builddir)/matutil/libmatutil.la $(builddir)/matutil/libsgenmat.la
+
+scholt_ll_SOURCES = $(chol_sources) $(chol_headers) $(chol_ll_sources) $(chol_ll_headers)
+scholt_ll_LDFLAGS = $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS)
+scholt_ll_CFLAGS = $(OMPSS_CFLAGS) -DUSE_LL -DSINGLE_PRECISION --instrument -I$(srcdir)/dense_kernels -I$(srcdir)/matutil -I$(srcdir)/util
+scholt_ll_LDADD = $(builddir)/dense_kernels/libsdkernels.la $(builddir)/matutil/libmatutil.la $(builddir)/matutil/libsgenmat.la
+
+
+# Dense, right-looking
+dchol_rl_SOURCES = $(chol_sources) $(chol_headers) $(chol_rl_sources) $(chol_rl_headers)
+dchol_rl_LDFLAGS = $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS)
+dchol_rl_CFLAGS = $(OMPSS_CFLAGS) -DUSE_RL -DDOUBLE_PRECISION -I$(srcdir)/dense_kernels -I$(srcdir)/matutil -I$(srcdir)/util
+dchol_rl_LDADD = $(builddir)/dense_kernels/libddkernels.la $(builddir)/matutil/libmatutil.la $(builddir)/matutil/libdgenmat.la
+
+dcholt_rl_SOURCES = $(chol_sources) $(chol_headers) $(chol_rl_sources) $(chol_rl_headers)
+dcholt_rl_LDFLAGS = $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS)
+dcholt_rl_CFLAGS = $(OMPSS_CFLAGS) -DUSE_RL -DDOUBLE_PRECISION --instrument -I$(srcdir)/dense_kernels -I$(srcdir)/matutil -I$(srcdir)/util
+dcholt_rl_LDADD = $(builddir)/dense_kernels/libddkernels.la $(builddir)/matutil/libmatutil.la $(builddir)/matutil/libdgenmat.la
+
+schol_rl_SOURCES = $(chol_sources) $(chol_headers) $(chol_rl_sources) $(chol_rl_headers)
+schol_rl_LDFLAGS = $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS)
+schol_rl_CFLAGS = $(OMPSS_CFLAGS) -DUSE_RL -DSINGLE_PRECISION -I$(srcdir)/dense_kernels -I$(srcdir)/matutil -I$(srcdir)/util
+schol_rl_LDADD = $(builddir)/dense_kernels/libsdkernels.la $(builddir)/matutil/libmatutil.la $(builddir)/matutil/libsgenmat.la
+
+scholt_rl_SOURCES = $(chol_sources) $(chol_headers) $(chol_rl_sources) $(chol_rl_headers)
+scholt_rl_LDFLAGS = $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS)
+scholt_rl_CFLAGS = $(OMPSS_CFLAGS) -DUSE_RL -DSINGLE_PRECISION --instrument -I$(srcdir)/dense_kernels -I$(srcdir)/matutil -I$(srcdir)/util
+scholt_rl_LDADD = $(builddir)/dense_kernels/libsdkernels.la $(builddir)/matutil/libmatutil.la $(builddir)/matutil/libsgenmat.la
+
+
+
+
+# Panels, instead of blocks, right-looking 
+prlchol_SOURCES = $(chol_sources) $(chol_headers) $(prlchol_sources) $(prlchol_headers)
+prlchol_LDFLAGS = $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS)
+prlchol_CFLAGS = $(OMPSS_CFLAGS) -DUSE_PRL -I$(srcdir)/dense_kernels -I$(srcdir)/matutil -I$(srcdir)/util
+prlchol_LDADD = $(builddir)/dense_kernels/libdkernels.la
+
+prlcholt_SOURCES = $(chol_sources) $(chol_headers) $(prlchol_sources) $(prlchol_headers)
+prlcholt_LDFLAGS = $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS)
+prlcholt_CFLAGS = $(OMPSS_CFLAGS) -DUSE_PRL --instrument -I$(srcdir)/dense_kernels -I$(srcdir)/matutil -I$(srcdir)/util
+prlcholt_LDADD = $(builddir)/dense_kernels/libdkernels.la
+
+
+# Sparse, left-looking
+llchols_SOURCES = $(chol_sources) $(chol_headers) $(llchols_sources) $(llchols_headers)
+llchols_LDFLAGS = $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS) 
+llchols_CFLAGS = $(OMPSS_CFLAGS) -DUSE_SLL -I$(srcdir)/sparse_kernels -I$(srcdir)/dense_kernels -I$(srcdir)/matutil -I$(srcdir)/util
+llchols_LDADD = $(builddir)/sparse_kernels/libskernels.la $(builddir)/matutil/libmatutil.la
+
+llcholst_SOURCES = $(chol_sources) $(chol_headers) $(llchols_sources) $(llchols_headers)
+llcholst_LDFLAGS = $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS)
+llcholst_CFLAGS = $(OMPSS_CFLAGS) --instrument -DUSE_SLL -I$(srcdir)/sparse_kernels -I$(srcdir)/matutil -I$(srcdir)/util
+llcholst_LDADD = $(builddir)/sparse_kernels/libskernels.la

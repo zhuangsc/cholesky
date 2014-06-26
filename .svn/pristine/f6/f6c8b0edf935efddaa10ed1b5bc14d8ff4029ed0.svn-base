@@ -1,0 +1,78 @@
+#include "chol_setup.h"
+
+#include "hb.h"
+#include "hbext.h"
+#include "hbconvrt.h"
+#include <time.h>
+#include "chols_warm.h"
+
+
+extern void *Acsr;
+extern void *Acsc;
+extern void *Ahb;
+extern int format;
+extern int *work;
+
+
+int chol_setup(int check, int m, int mr, int ts, int bs, int tm, int mleft) {
+	struct timeval start, stop;
+
+	gettimeofday(&start, NULL);
+
+	one2zero(Ahb);
+	hbmat_t *lAcsr, *Ahhb, *Atrans;
+	int *etree_ptr;
+
+	if ( format == MAT_CSC ) {
+		lAcsr = csc2csr(Ahb);
+		etree_ptr = etree(lAcsr);
+		Ahhb = hb2hbh_sym_etree(Ahb, ts, etree_ptr);
+		Atrans = csc2csr(Ahhb);
+	} else{
+		etree_ptr = etree(Ahb);
+		//Ahhb = hb2hbh_sym_etree_csr_p(Ahb, ts, etree_ptr);
+		Ahhb = hb2hbh_hyper_sym_csr(Ahb, ts, etree_ptr);
+		Atrans = csc2csr(Ahhb);
+	}
+
+	gettimeofday(&stop, NULL);
+
+	unsigned long elapsed = stop.tv_usec - start.tv_usec;
+	elapsed += (stop.tv_sec - start.tv_sec) * 1000000;
+	printf("info: symbolic fac %lu us\n", elapsed);
+
+//	hb_free(Ahb);
+	if ( !format ) {
+		hb_free(lAcsr);
+	}
+//	free(etree_ptr);
+
+	if ( format==MAT_CSC ) {
+		Acsc = Ahhb;
+		Acsr = Atrans;
+	} else {
+		Acsc = Atrans;
+		Acsr = Ahhb;
+	}
+
+	work = malloc(mr* sizeof(int));
+	mkl_warmup();
+
+	return 0;
+}
+
+void chol_shutdown() {
+	if ( !format ) {
+		hbh_free(Acsc);
+	}
+	else {
+		hbh_free2(Acsr);
+	}
+
+	free(work);
+	free(Ahb);
+//	free(etree_g);
+//	free(vptr_pool);
+//	free(vpos_pool);
+//	free(vval_pool);
+}
